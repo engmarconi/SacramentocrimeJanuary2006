@@ -44,6 +44,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -68,6 +71,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CSVMap.aspx" />
+    <Content Include="EuropeanCountryName.aspx" />
+    <Content Include="Js\countryname.js" />
     <Content Include="Js\csvmap.js" />
     <Content Include="Js\okafor.js" />
     <Content Include="Okafor.aspx" />
@@ -83,6 +88,13 @@
     </Compile>
     <Compile Include="CSVMap.aspx.designer.cs">
       <DependentUpon>CSVMap.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EuropeanCountryName.aspx.cs">
+      <DependentUpon>EuropeanCountryName.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EuropeanCountryName.aspx.designer.cs">
+      <DependentUpon>EuropeanCountryName.aspx</DependentUpon>
     </Compile>
     <Compile Include="Okafor.aspx.cs">
       <DependentUpon>Okafor.aspx</DependentUpon>
@@ -108,6 +120,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <Content Include="Upload\Cities.csv" />
+    <Content Include="Upload\CountryBorders.csv" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -117,7 +131,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="images\" />
-    <Folder Include="Upload\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
