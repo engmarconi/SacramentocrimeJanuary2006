@@ -13,11 +13,9 @@ var map = null;
 var directionsService = null;
 var directionsRenderer = null;
 
-readCountryBorder()
-readCities();
 
 
-function readCountryBorder() {
+function loadData(callback) {
     
     fetch("Js/CountryBorders.csv")
         .then(response => response.text())
@@ -49,35 +47,32 @@ function readCountryBorder() {
                         });
                 }
             }
-        })
-}
 
-function readCities() {
+            fetch("Js/Cities.csv")
+                .then(response => response.text())
+                .then(content => {
+                    if (content != null) {
+                        var lines = content.split('\r\n');
+                        for (var i = 0; i < lines.length; i++) {
+                            var line = lines[i];
+                            var fields = line.split(',');
+                            if (fields.length != 5)
+                                continue;
 
-    fetch("Js/Cities.csv")
-        .then(response => response.text())
-        .then(content => {
-            if (content != null) {
-                var lines = content.split('\r\n');
-                for (var i = 0; i < lines.length; i++)
-                {
-                    var line = lines[i];
-                    var fields = line.split(',');
-                    if (fields.length != 5)
-                        continue;
+                            var city =
+                            {
+                                CityName: fields[0],
+                                Lat: fields[1],
+                                Lng: fields[2],
+                                Country: fields[3],
+                                Weight: fields[4],
+                            };
+                            cities.push(city);
+                        }
+                    }
+                    callback();
 
-                    var city = 
-                    {
-                        CityName: fields[0],
-                            Lat: fields[1],
-                            Lng: fields[2],
-                            Country: fields[3],
-                            Weight: fields[4],
-                    };
-                    cities.push(city);
-                }
-            }
-            
+                })
         })
 }
 
@@ -93,64 +88,66 @@ function parseHeatmapAndBounds() {
 
 
 function initMap() {
-    parseHeatmapAndBounds(); 
-    var mapOptions = {
-        center: new google.maps.LatLng(cities[0].Lat, cities[0].Lng),
-        zoom: 8,
-        maxZoom: 18,
-        mapTypeId: google.maps.MapTypeId.SATELLITE
-    };
-    const infoWindow = new google.maps.InfoWindow();
-    directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer();
-    map = new google.maps.Map(okaforMapDiv, mapOptions);
-    directionsRenderer.setMap(map);
+    loadData(function () {
+        parseHeatmapAndBounds();
+        var mapOptions = {
+            center: new google.maps.LatLng(cities[0].Lat, cities[0].Lng),
+            zoom: 8,
+            maxZoom: 18,
+            mapTypeId: google.maps.MapTypeId.SATELLITE
+        };
+        const infoWindow = new google.maps.InfoWindow();
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer();
+        map = new google.maps.Map(okaforMapDiv, mapOptions);
 
-    airportMarker = new google.maps.Marker({
-        position: new google.maps.LatLng(55.618, 12.656),
-        map: map,
-        title: "Copenhagen Airport",
-        //icon: image
-    });
-
-    internationalAirportMarker = new google.maps.Marker({
-        position: new google.maps.LatLng(6.233665732, -10.357331904),
-        map: map,
-        title: "International Airport",
-        //icon: image
-    });
-
-    trainStationMarker = new google.maps.Marker({
-        position: new google.maps.LatLng(55.672737, 12.564828),
-        map: map,
-        title: "IThe main Train station in Copenhagen",
-        //icon: image
-    });
-
-    drawGeodesicPoly(airportMarker.getPosition(), internationalAirportMarker.getPosition());
-    drawRoute("DRIVING");
-    var heatmap = new google.maps.visualization.HeatmapLayer({
-        data: heatmaps
-    });
-    heatmap.setMap(map);
-
-    for (var i = 0; i < boarders.length; i++) {
-        var points = [];
-        for (var j = 0; j < boarders[i].points.length; j++) {
-            points.push(new google.maps.LatLng(boarders[i].points[j].Lat, boarders[i].points[j].Lng));
-        }
-        const boarder = new google.maps.Polygon({
-            path: points,
-            strokeColor: "#00FF00",
-            strokeOpacity: 0.9,
-            strokeWeight: 4,
-            fillColor: "#00FF00",
-            fillOpacity: 0.2,
+        airportMarker = new google.maps.Marker({
+            position: new google.maps.LatLng(55.618, 12.656),
+            map: map,
+            title: "Copenhagen Airport",
+            //icon: image
         });
-        boarder.setMap(map);
-    }
-    map.setCenter(latlngbounds.getCenter());
-    map.fitBounds(latlngbounds);
+
+        internationalAirportMarker = new google.maps.Marker({
+            position: new google.maps.LatLng(6.233665732, -10.357331904),
+            map: map,
+            title: "International Airport",
+            //icon: image
+        });
+
+        trainStationMarker = new google.maps.Marker({
+            position: new google.maps.LatLng(55.672737, 12.564828),
+            map: map,
+            title: "IThe main Train station in Copenhagen",
+            //icon: image
+        });
+
+        drawGeodesicPoly(airportMarker.getPosition(), internationalAirportMarker.getPosition());
+        //drawRoute("DRIVING");
+        var heatmap = new google.maps.visualization.HeatmapLayer({
+            data: heatmaps
+        });
+        heatmap.setMap(map);
+
+        for (var i = 0; i < boarders.length; i++) {
+            var points = [];
+            for (var j = 0; j < boarders[i].points.length; j++) {
+                points.push(new google.maps.LatLng(boarders[i].points[j].Lat, boarders[i].points[j].Lng));
+            }
+            const boarder = new google.maps.Polygon({
+                path: points,
+                strokeColor: "#00FF00",
+                strokeOpacity: 0.9,
+                strokeWeight: 4,
+                fillColor: "#00FF00",
+                fillOpacity: 0.2,
+            });
+            boarder.setMap(map);
+        }
+        map.setCenter(latlngbounds.getCenter());
+        map.fitBounds(latlngbounds);
+        directionsRenderer.setMap(map);
+    })
 }
 
 function drawGeodesicPoly(p1, p2) {
