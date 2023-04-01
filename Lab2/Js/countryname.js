@@ -13,39 +13,87 @@ var map = null;
 var directionsService = null;
 var directionsRenderer = null;
 
-function getPageData() {
-    let parentDiv  = document.getElementById("OkaforObject");
-    let childrenEl = parentDiv.getElementsByTagName("span");
-    let data = JSON.parse(childrenEl[0].getAttribute("data"));
-    cities = data.Cities
-    boarders = data.CountryBoraders
+readCountryBorder()
+readCities();
 
-    //console.log(cities)
-    //console.log(boarders)
 
+function readCountryBorder() {
+    
+    fetch("Js/CountryBorders.csv")
+        .then(response => response.text())
+        .then(content => {
+            var countryBorader = {};
+            if (content != null) {
+                var lines = content.split('\r\n');
+                for (var i = 1; i < lines.length; i++)
+                {
+                    var line = lines[i];
+                    var fields = line.split(',');
+                    if (fields.length != 4)
+                        continue;
+
+                    if (countryBorader.country != fields[3] || countryBorader.part != fields[2]) {
+                        if (countryBorader.country != null)
+                            boarders.push(countryBorader);
+
+                        countryBorader =
+                        {
+                            country: fields[3],
+                                part: fields[2],
+                                points: []
+                        };
+                    }
+                    countryBorader.points.push({
+                            Lat: fields[0],
+                            Lng: fields[1],
+                        });
+                }
+            }
+        })
+}
+
+function readCities() {
+
+    fetch("Js/Cities.csv")
+        .then(response => response.text())
+        .then(content => {
+            if (content != null) {
+                var lines = content.split('\r\n');
+                for (var i = 0; i < lines.length; i++)
+                {
+                    var line = lines[i];
+                    var fields = line.split(',');
+                    if (fields.length != 5)
+                        continue;
+
+                    var city = 
+                    {
+                        CityName: fields[0],
+                            Lat: fields[1],
+                            Lng: fields[2],
+                            Country: fields[3],
+                            Weight: fields[4],
+                    };
+                    cities.push(city);
+                }
+            }
+            
+        })
+}
+
+function parseHeatmapAndBounds() {
     latlngbounds = new google.maps.LatLngBounds();
     for (let i = 0; i < cities.length; i++) {
         let location = new google.maps.LatLng(cities[i].Lat, cities[i].Lng);
         heatmaps.push({ location: location, weight: cities[i].Weight },);
         latlngbounds.extend(location);
     }
-    //console.log(heatmaps);
-    // loop through the span elements to get the lat,lng and message
-    //for (let i = 0; i < childrenEl.length;  i++) {
-    //    let lat     = childrenEl[i].getAttribute("lat");
-    //    let lng     = childrenEl[i].getAttribute("lng");
-    //    let weight = childrenEl[i].getAttribute("weight");
-    //    pointsArray.push({ lat: lat, lng: lng, weight: weight });
-    //}
 }
 
 
 
 function initMap() {
-    getPageData();  //  Build the location points array;
-    //var directionsService  = new google.maps.DirectionsService();
-    //var directionsRenderer = new google.maps.DirectionsRenderer();
-
+    parseHeatmapAndBounds(); 
     var mapOptions = {
         center: new google.maps.LatLng(cities[0].Lat, cities[0].Lng),
         zoom: 8,

@@ -72,6 +72,7 @@
   <ItemGroup>
     <Content Include="CSVMap.aspx" />
     <Content Include="EuropeanCountryName.aspx" />
+    <Content Include="EuropeanCountryName.html" />
     <Content Include="Js\countryname.js" />
     <Content Include="Js\csvmap.js" />
     <Content Include="Js\okafor.js" />
@@ -120,8 +121,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Content Include="Upload\Cities.csv" />
-    <Content Include="Upload\CountryBorders.csv" />
+    <Content Include="Js\Cities.csv" />
+    <Content Include="Js\CountryBorders.csv" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -131,6 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="images\" />
+    <Folder Include="Upload\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

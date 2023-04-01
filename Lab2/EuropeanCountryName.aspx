@@ -21,7 +21,7 @@
                         <a href="BasicMap.aspx" class="pageLink" target="_self">Basic Map <i class="fa fa-map"></i></a>
                         <a href="ProjectX.aspx" class="pageLink" target="_self">ProjectX <i class="fa fa-bolt"></i></a>
                         <a href="CSVMap.aspx" class="pageLink" target="_self">CSVMap <i class="fa fa-file"></i></a>
-                        <a href="EuropeanCountryName.aspx" class="pageLink" target="_self">European Country Name <i class="fa fa-file"></i></a>
+                        <a href="EuropeanCountryName.html" class="pageLink" target="_self">European Country Name <i class="fa fa-file"></i></a>
                     </div>
                 </div>
             </nav>
