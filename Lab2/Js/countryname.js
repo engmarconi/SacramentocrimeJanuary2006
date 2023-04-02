@@ -22,7 +22,7 @@ function loadData(callback) {
         .then(content => {
             var countryBorader = {};
             if (content != null) {
-                var lines = content.split('\r\n');
+                var lines = content.split('\n');
                 for (var i = 1; i < lines.length; i++)
                 {
                     var line = lines[i];
@@ -52,7 +52,7 @@ function loadData(callback) {
                 .then(response => response.text())
                 .then(content => {
                     if (content != null) {
-                        var lines = content.split('\r\n');
+                        var lines = content.split('\n');
                         for (var i = 0; i < lines.length; i++) {
                             var line = lines[i];
                             var fields = line.split(',');
@@ -65,7 +65,7 @@ function loadData(callback) {
                                 Lat: fields[1],
                                 Lng: fields[2],
                                 Country: fields[3],
-                                Weight: fields[4],
+                                Weight: Number(fields[4]),
                             };
                             cities.push(city);
                         }
@@ -76,13 +76,28 @@ function loadData(callback) {
         })
 }
 
+
+
 function parseHeatmapAndBounds() {
-    latlngbounds = new google.maps.LatLngBounds();
+    var x0 = 0, x1 = 0, y0 = 0, y1 = 0;
     for (let i = 0; i < cities.length; i++) {
-        let location = new google.maps.LatLng(cities[i].Lat, cities[i].Lng);
-        heatmaps.push({ location: location, weight: cities[i].Weight },);
-        latlngbounds.extend(location);
+        let latLng = new google.maps.LatLng(cities[i].Lat, cities[i].Lng);
+        heatmaps.push({ location: latLng, weight: cities[i].Weight },);
+
+        if (x0 == null) {
+            x0 = x1 = latLng.latitude;
+            y0 = y1 = latLng.longitude;
+        } else {
+            if (latLng.latitude > x1) x1 = latLng.latitude;
+            if (latLng.latitude < x0) x0 = latLng.latitude;
+            if (latLng.longitude > y1) y1 = latLng.longitude;
+            if (latLng.longitude < y0) y0 = latLng.longitude;
+        }
+       // latlngbounds.extend(location);
     }
+    latlngbounds = new google.maps.LatLngBounds()
+    latlngbounds.extend(new google.maps.LatLng(x0, y0));
+        latlngbounds.extend(  new google.maps.LatLng(x1, y1));
 }
 
 
@@ -91,7 +106,7 @@ function initMap() {
     loadData(function () {
         parseHeatmapAndBounds();
         var mapOptions = {
-            center: new google.maps.LatLng(cities[0].Lat, cities[0].Lng),
+            center: new google.maps.LatLng(0, 0),
             zoom: 8,
             maxZoom: 18,
             mapTypeId: google.maps.MapTypeId.SATELLITE
@@ -107,6 +122,7 @@ function initMap() {
             title: "Copenhagen Airport",
             //icon: image
         });
+        latlngbounds.extend(airportMarker.getPosition());
 
         internationalAirportMarker = new google.maps.Marker({
             position: new google.maps.LatLng(6.233665732, -10.357331904),
@@ -114,6 +130,7 @@ function initMap() {
             title: "International Airport",
             //icon: image
         });
+        latlngbounds.extend(internationalAirportMarker.getPosition());
 
         trainStationMarker = new google.maps.Marker({
             position: new google.maps.LatLng(55.672737, 12.564828),
@@ -121,6 +138,8 @@ function initMap() {
             title: "IThe main Train station in Copenhagen",
             //icon: image
         });
+        latlngbounds.extend(trainStationMarker.getPosition());
+
 
         drawGeodesicPoly(airportMarker.getPosition(), internationalAirportMarker.getPosition());
         //drawRoute("DRIVING");
